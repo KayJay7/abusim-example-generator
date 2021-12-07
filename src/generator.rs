@@ -1,3 +1,4 @@
+use crate::args::Opt;
 use serde::Serialize;
 use std::collections::HashMap;
 
@@ -30,6 +31,7 @@ struct Prototype {
 }
 
 impl Config {
+    #[allow(dead_code)]
     pub fn new() -> Config {
         Config {
             version: "1.0".to_string(),
@@ -41,4 +43,33 @@ impl Config {
             prototypes: HashMap::new(),
         }
     }
+
+    pub fn from(opt: Opt) -> Config {
+        Config {
+            version: "1.0".to_string(),
+            image: "abulang/abusim-goabu-agent:latest".to_string(),
+            coordinator_image: "abulang/abusim-coordinator:latest".to_string(),
+            namespace: "abusim-example".to_string(),
+            includes: vec![],
+            agents: generate_devices(opt.devices_number),
+            prototypes: HashMap::new(),
+        }
+    }
+}
+
+fn generate_devices(devices_number: u32) -> HashMap<String, Agent> {
+    (0..devices_number)
+        .map(|id| {
+            (
+                id.to_string(),
+                Agent {
+                    prototype: "agent".to_string(),
+                    memory_controller: "basic".to_string(),
+                    memory: vec![String::from(format!("integer:id:{}", id))],
+                    rules: vec![],
+                    tick: "1s".to_string(),
+                },
+            )
+        })
+        .collect()
 }
