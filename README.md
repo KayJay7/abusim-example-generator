@@ -34,3 +34,36 @@ OPTIONS:
     -o, --output <OUTPUT>
             Output file [default: abusim.yml]
 ```
+
+If compiled in debug mode, `aeg` will also print to stdout the defined sizes and the entire output YAML as debug information.
+
+## Currently implemented
+
+* [x] devices_number
+* [ ] chains_number
+* [x] chain_length
+* [ ] chain_width
+* [x] devices_length
+* [ ] devices_width
+
+## Building
+
+The project can be built with cargo. A rust toolchain (stable or nightly) is required for building.
+
+```sh
+# git clone to your local disk
+git clone https://github.com/KayJay7/abusim-example-generator.git
+cd abusim-example-generator
+
+# build debug
+cargo build
+
+# build release
+cargo build --release
+
+# run with arguments
+cargo run -- # your arguments here
+
+# install to your cargo/bin directory
+cargo install --path . # from the project root
+```
