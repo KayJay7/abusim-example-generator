@@ -3,7 +3,7 @@ use std::path::PathBuf;
 
 /// Example generator for abusim
 #[derive(Parser, Debug)]
-#[clap(name = "aeg")]
+#[clap(name = "aeg", version)]
 pub struct Opt {
     /// Output file
     #[clap(short, long, parse(from_os_str), value_hint = ValueHint::FilePath, default_value = "abusim.yml")]

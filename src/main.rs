@@ -6,6 +6,10 @@ use std::fs::File;
 mod args;
 mod generator;
 
+/// The main logic is extremely basic and straightforward
+/// First the arguments are parsed, then it tryes to create the output file
+/// it it can't it will prompt an error,
+/// otherwise it will generate the configuration and write it out to the output file
 fn main() {
     let opt = Opt::parse();
     #[cfg(debug_assertions)]
