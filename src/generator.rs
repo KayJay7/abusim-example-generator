@@ -136,8 +136,9 @@ fn generate_memory(opt: &Opt) -> Vec<String> {
 }
 
 fn generate_rules(opt: &Opt) -> Vec<String> {
-    let mut rules =
-        Vec::with_capacity((opt.chain_length as usize * opt.chains_number as usize) + 4);
+    let mut rules = Vec::with_capacity(
+        (opt.chain_length as usize * opt.chains_number as usize) + 3 + opt.chains_number as usize,
+    );
 
     rules.push(String::from(format!(
         "rule start on start for start do a0_0 = {}; start = false",
@@ -149,22 +150,24 @@ fn generate_rules(opt: &Opt) -> Vec<String> {
         "rule start_local on start_all for start_all do start = true; start_all = false"
             .to_string(),
     );
-    rules.push(String::from(format!(
-        "rule activate on a0_{0} \
-            for all this.a0_{0} > 0 && (\
-                ext.id == (this.id + 1) || (\
-                    this.id == {1} && ext.id == 0\
-                )\
-            ) \
-            do ext.a0_0 = (this.a0_{0} - 1)",
-        opt.chain_length - 1,
-        opt.devices_number - 1
-    )));
 
     for chain_index in 0..opt.chains_number {
         for step_index in 0..opt.chain_length {
             rules.push(get_rule(&opt, chain_index, step_index));
         }
+
+        rules.push(String::from(format!(
+            "rule activate{0} on a{0}_{1} \
+            for all this.a{0}_{1} > 0 && (\
+                ext.id == (this.id + 1) || (\
+                    this.id == {2} && ext.id == 0\
+                )\
+            ) \
+            do ext.a{0}_0 = (this.a{0}_{1} - 1)",
+            chain_index,
+            opt.chain_length - 1,
+            opt.devices_number - 1
+        )));
     }
     rules
 }
