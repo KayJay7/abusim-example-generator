@@ -71,10 +71,7 @@ fn generate_devices(opt: &Opt) -> HashMap<String, Agent> {
                 Agent {
                     prototype: "agent".to_string(),
                     memory_controller: "basic".to_string(),
-                    memory: vec![
-                        String::from(format!("integer:id:{}", id)),
-                        "bool:start:false".to_string(),
-                    ],
+                    memory: vec![String::from(format!("integer:id:{}", id))],
                     rules: vec![],
                     tick: "1s".to_string(),
                 },
@@ -92,12 +89,21 @@ fn generate_prototypes(opt: &Opt) -> HashMap<String, Prototype> {
         Prototype {
             memory_controller: "basic".to_string(),
             memory: (0..(opt.chain_length))
-                .map(|index| String::from(format!("integer:a{}:0", index)))
+                .map(move |step_index| String::from(format!("integer:a{}:0", step_index)))
+                .chain([
+                    "bool:start:false".to_string(),
+                    "bool:start_all:false".to_string(),
+                ])
+                .collect(),
+            rules: (0..(opt.chain_length))
+                .map(transform)
                 .chain([
                     String::from(format!(
                         "rule start on start for start do a0 = {}; start = false",
                         opt.devices_length
                     )),
+                    "rule start_all on start_all for all this.start_all do ext.start = true".to_string(),
+                    "rule start_local on start_all for start_all do start = true; start_all = false".to_string(),
                     String::from(format!(
                         "rule activate on a{0} \
                                 for all this.a{0} > 0 && (\
@@ -111,7 +117,6 @@ fn generate_prototypes(opt: &Opt) -> HashMap<String, Prototype> {
                     )),
                 ])
                 .collect(),
-            rules: (0..(opt.chain_length)).map(transform).collect(),
             tick: "1s".to_string(),
         },
     );
