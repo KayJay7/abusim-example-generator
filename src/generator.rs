@@ -66,16 +66,24 @@ impl Config {
 fn generate_devices(opt: &Opt) -> HashMap<String, Agent> {
     (0..(opt.devices_number))
         .map(|id| {
-            let mut rules = Vec::new();
+            let mut rules = Vec::with_capacity(opt.chains_number as usize);
+            let mut activated_devices = format!("ext.id == {}", (id + 0 + 1) % opt.devices_number);
+
+            for device_index in 1..opt.devices_width {
+                activated_devices.push_str(&format!(
+                    " || ext.id == {}",
+                    (id + device_index + 1) % opt.devices_number
+                ));
+            }
 
             for chain_index in 0..opt.chains_number {
                 rules.push(format!(
                     "rule activate{0} on a{0}_{1} \
-                    for all this.a{0}_{1} > 0 && ext.id == {2} \
+                    for all this.a{0}_{1} > 0 && ({2}) \
                     do ext.a{0}_0 = (this.a{0}_{1} - 1)",
                     chain_index,
                     opt.chain_length - 1,
-                    (id + 1) % opt.devices_number
+                    activated_devices
                 ));
             }
 
@@ -146,9 +154,8 @@ fn generate_memory(opt: &Opt) -> Vec<String> {
 }
 
 fn generate_rules(opt: &Opt) -> Vec<String> {
-    let mut rules = Vec::with_capacity(
-        (opt.chain_length as usize * opt.chains_number as usize) + 3 + opt.chains_number as usize,
-    );
+    let mut rules =
+        Vec::with_capacity((opt.chain_length as usize * opt.chains_number as usize) + 3);
     let mut starting_rule = String::new();
 
     for chain_index in 0..opt.chain_width {
