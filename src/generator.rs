@@ -66,13 +66,26 @@ impl Config {
 fn generate_devices(opt: &Opt) -> HashMap<String, Agent> {
     (0..(opt.devices_number))
         .map(|id| {
+            let mut rules = Vec::new();
+
+            for chain_index in 0..opt.chains_number {
+                rules.push(format!(
+                    "rule activate{0} on a{0}_{1} \
+                    for all this.a{0}_{1} > 0 && ext.id == {2} \
+                    do ext.a{0}_0 = (this.a{0}_{1} - 1)",
+                    chain_index,
+                    opt.chain_length - 1,
+                    (id + 1) % opt.devices_number
+                ));
+            }
+
             (
                 format!("agent{}", id),
                 Agent {
                     prototype: "agent".to_string(),
                     memory_controller: "basic".to_string(),
                     memory: vec![format!("integer:id:{}", id)],
-                    rules: vec![],
+                    rules,
                     tick: "1s".to_string(),
                 },
             )
@@ -101,15 +114,15 @@ fn get_rule(opt: &Opt, chain_index: u32, step_index: u32) -> String {
     if step_index == opt.chain_length - 1 {
         format!(
             "rule last_step{0} on a{0}_{1} \
-                    for a{0}_{1} > 0 \
-                    do a{0}_{1} = 0",
+            for a{0}_{1} > 0 \
+            do a{0}_{1} = 0",
             chain_index, step_index
         )
     } else {
         format!(
             "rule step{0}_{1} on a{0}_{1} \
-                    for a{0}_{1} > 0 \
-                    do a{0}_{2} = a{0}_{1}; a{0}_{1} = 0",
+            for a{0}_{1} > 0 \
+            do a{0}_{2} = a{0}_{1}; a{0}_{1} = 0",
             chain_index,
             step_index,
             step_index + 1
@@ -157,19 +170,6 @@ fn generate_rules(opt: &Opt) -> Vec<String> {
         for step_index in 0..opt.chain_length {
             rules.push(get_rule(&opt, chain_index, step_index));
         }
-
-        rules.push(format!(
-            "rule activate{0} on a{0}_{1} \
-            for all this.a{0}_{1} > 0 && (\
-                ext.id == (this.id + 1) || (\
-                    this.id == {2} && ext.id == 0\
-                )\
-            ) \
-            do ext.a{0}_0 = (this.a{0}_{1} - 1)",
-            chain_index,
-            opt.chain_length - 1,
-            opt.devices_number - 1
-        ));
     }
 
     rules
