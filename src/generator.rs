@@ -67,11 +67,11 @@ fn generate_devices(opt: &Opt) -> HashMap<String, Agent> {
     (0..(opt.devices_number))
         .map(|id| {
             (
-                String::from(format!("agent{}", id)),
+                format!("agent{}", id),
                 Agent {
                     prototype: "agent".to_string(),
                     memory_controller: "basic".to_string(),
-                    memory: vec![String::from(format!("integer:id:{}", id))],
+                    memory: vec![format!("integer:id:{}", id)],
                     rules: vec![],
                     tick: "1s".to_string(),
                 },
@@ -99,21 +99,21 @@ fn generate_prototypes(opt: &Opt) -> HashMap<String, Prototype> {
 /// Maps the rule's indexes to a rule
 fn get_rule(opt: &Opt, chain_index: u32, step_index: u32) -> String {
     if step_index == opt.chain_length - 1 {
-        String::from(format!(
+        format!(
             "rule last_step{0} on a{0}_{1} \
                     for a{0}_{1} > 0 \
                     do a{0}_{1} = 0",
             chain_index, step_index
-        ))
+        )
     } else {
-        String::from(format!(
+        format!(
             "rule step{0}_{1} on a{0}_{1} \
                     for a{0}_{1} > 0 \
                     do a{0}_{2} = a{0}_{1}; a{0}_{1} = 0",
             chain_index,
             step_index,
             step_index + 1
-        ))
+        )
     }
 }
 
@@ -125,10 +125,7 @@ fn generate_memory(opt: &Opt) -> Vec<String> {
 
     for chain_index in 0..opt.chains_number {
         for step_index in 0..opt.chain_length {
-            memory.push(String::from(format!(
-                "integer:a{}_{}:0",
-                chain_index, step_index
-            )));
+            memory.push(format!("integer:a{}_{}:0", chain_index, step_index));
         }
     }
 
@@ -139,11 +136,16 @@ fn generate_rules(opt: &Opt) -> Vec<String> {
     let mut rules = Vec::with_capacity(
         (opt.chain_length as usize * opt.chains_number as usize) + 3 + opt.chains_number as usize,
     );
+    let mut starting_rule = String::new();
 
-    rules.push(String::from(format!(
-        "rule start on start for start do a0_0 = {}; start = false",
-        opt.devices_length
-    )));
+    for chain_index in 0..opt.chain_width {
+        starting_rule.push_str(&format!(" a{}_0 = {};", chain_index, opt.devices_length));
+    }
+
+    rules.push(format!(
+        "rule start on start for start do{} start = false",
+        starting_rule
+    ));
     rules
         .push("rule start_all on start_all for all this.start_all do ext.start = true".to_string());
     rules.push(
@@ -156,7 +158,7 @@ fn generate_rules(opt: &Opt) -> Vec<String> {
             rules.push(get_rule(&opt, chain_index, step_index));
         }
 
-        rules.push(String::from(format!(
+        rules.push(format!(
             "rule activate{0} on a{0}_{1} \
             for all this.a{0}_{1} > 0 && (\
                 ext.id == (this.id + 1) || (\
@@ -167,7 +169,8 @@ fn generate_rules(opt: &Opt) -> Vec<String> {
             chain_index,
             opt.chain_length - 1,
             opt.devices_number - 1
-        )));
+        ));
     }
+
     rules
 }
