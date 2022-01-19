@@ -52,11 +52,11 @@ impl Config {
     /// Generate a configuration based on argument options
     pub fn from(opt: Opt) -> Config {
         Config {
-            version: "1.0".to_string(),
-            image: "abulang/abusim-goabu-agent:latest".to_string(),
-            coordinator_image: "abulang/abusim-coordinator:latest".to_string(),
-            namespace: "abusim-example".to_string(),
-            includes: vec![],
+            version: opt.configuration_version.clone(),
+            image: opt.image.clone(),
+            coordinator_image: opt.coordinator_image.clone(),
+            namespace: opt.namespace.clone(),
+            includes: opt.includes.clone(),
             agents: generate_devices(&opt),
             prototypes: generate_prototypes(&opt),
         }
@@ -91,10 +91,10 @@ fn generate_devices(opt: &Opt) -> HashMap<String, Agent> {
                 format!("agent{}", id),
                 Agent {
                     prototype: "agent".to_string(),
-                    memory_controller: "basic".to_string(),
+                    memory_controller: opt.memory_controller.clone(),
                     memory: vec![format!("integer:id:{}", id)],
                     rules,
-                    tick: "1s".to_string(),
+                    tick: opt.tick.clone(),
                 },
             )
         })
@@ -107,10 +107,10 @@ fn generate_prototypes(opt: &Opt) -> HashMap<String, Prototype> {
     prototypes.insert(
         "agent".to_string(),
         Prototype {
-            memory_controller: "basic".to_string(),
+            memory_controller: opt.memory_controller.clone(),
             memory: generate_memory(&opt),
             rules: generate_rules(&opt),
-            tick: "1s".to_string(),
+            tick: opt.tick.clone(),
         },
     );
 

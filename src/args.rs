@@ -32,6 +32,34 @@ pub struct Opt {
     /// Length of device chains
     #[clap(short = 'f', long, default_value = "1")]
     pub devices_length: u32,
+
+    /// Agent's docker image
+    #[clap(short = 'I', long, default_value = "abulang/abusim-goabu-agent:latest")]
+    pub image: String,
+
+    /// Coordinator's docker image
+    #[clap(short = 'C', long, default_value = "abulang/abusim-coordinator:latest")]
+    pub coordinator_image: String,
+
+    /// Ticking time
+    #[clap(short = 'T', long, default_value = "1s")]
+    pub tick: String,
+
+    /// Namespace
+    #[clap(long, default_value = "abusim-example")]
+    pub namespace: String,
+
+    /// Included files
+    #[clap(long)]
+    pub includes: Vec<String>,
+
+    /// Memory controller
+    #[clap(long, default_value = "basic")]
+    pub memory_controller: String,
+
+    /// Configuration version
+    #[clap(long, default_value = "1.0")]
+    pub configuration_version: String,
 }
 
 impl Opt {
