@@ -44,7 +44,7 @@ If compiled in debug mode, `aeg` will also print to stdout the defined sizes and
 * [x] chain_length
 * [x] chain_width
 * [x] devices_length
-* [ ] devices_width
+* [x] devices_width
 
 ## Building
 
