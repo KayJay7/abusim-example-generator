@@ -26,16 +26,43 @@ OPTIONS:
             Number of devices activated by a chain [default: 1]
 
     -f, --devices-length <DEVICES_LENGTH>
-            Length of device chains [default: 1]
+            Length of device chains [default: 1]er image [default: abulang/abusim-coordinator:latest]
+
+
+
+
+    -C, --coordinator-image <COORDINATOR_IMAGE>
+            Coordinator's dock
+
+        --configuration-version <CONFIGURATION_VERSION>
+            Configuration version [default: 1.0]
 
     -h, --help
             Print help information
 
+    -I, --image <IMAGE>
+            Agent's docker image [default: abulang/abusim-goabu-agent:latest]
+
+        --includes <INCLUDES>
+            Included files
+
+        --memory-controller <MEMORY_CONTROLLER>
+            Memory controller [default: basic]
+
+        --namespace <NAMESPACE>
+            Namespace [default: abusim-example]
+
     -o, --output <OUTPUT>
             Output file [default: abusim.yml]
+
+    -T, --tick <TICK>
+            Ticking time [default: 1s]
+
+    -V, --version
+            Print version information
 ```
 
-If compiled in debug mode, `aeg` will also print to stdout the defined sizes and the entire output YAML as debug information.
+If compiled in debug mode, `aeg` will also print to stdout the defined options and the entire output YAML as debug information.
 
 ## Currently implemented
 
